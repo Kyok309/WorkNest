@@ -1,0 +1,245 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model EmployeeRole {
+  id       String    @id @db.VarChar(30)
+  name     String
+  employees Employee[]
+}
+
+model Employee {
+  id             String       @id @db.VarChar(30)
+  lastname       String
+  firstname      String
+  registerNum    String
+  email          String
+  phoneNum       Int
+  username       String
+  password       String
+  employeeRoleId String
+  role           EmployeeRole @relation(fields: [employeeRoleId], references: [id])
+}
+
+model Client {
+  id              String          @id @db.VarChar(30)
+  lastname        String
+  firstname       String
+  registerNum     String
+  email           String          @unique
+  password        String
+  avgRating       Float
+  education       String
+  pastExperience  String
+  phoneNum        Int
+  homeAddress     String
+  birthDate       DateTime
+  gender          String
+  profileImage    String?         @db.VarChar(1000)
+  createdDate     DateTime        @default(now())
+  isVerified      Boolean         @default(false)
+  services        Service[]
+  ads             Ad[]
+  comments        ServiceComment[] @relation("ServiceCommentWriter")
+  adComments      AdComment[]     @relation("AdCommentWriter")
+  jobRequests     JobRequest[]    @relation("ClientJobRequests")
+  paymentsMade    Payment[]       @relation("JobOrderer")
+  paymentsReceived Payment[]      @relation("Contractor")
+
+  @@index([email])
+}
+
+model Category {
+  id          String        @id @db.VarChar(30)
+  name        String        @db.VarChar(30)
+  subCategories SubCategory[]
+}
+
+model SubCategory {
+  id          String      @id @db.VarChar(30)
+  name        String      @db.VarChar(30)
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  services    Service[]
+  adCategories AdCategory[]
+}
+
+model Service {
+  id             String           @id @db.VarChar(30)
+  title          String
+  description    String
+  imageURL       String
+  experienceYear Float
+  wageType       String?
+  wage           Float?
+  clientId       String
+  subcategoryId  String
+  client         Client           @relation(fields: [clientId], references: [id])
+  subcategory    SubCategory      @relation(fields: [subcategoryId], references: [id])
+  comments       ServiceComment[]
+}
+
+model ServiceComment {
+  id              String    @id @db.VarChar(30)
+  comment         String    @db.VarChar(1000)
+  createdDate     DateTime  @default(now())
+  commentWriterId String
+  serviceId       String
+  writer          Client    @relation("ServiceCommentWriter", fields: [commentWriterId], references: [id])
+  service         Service   @relation(fields: [serviceId], references: [id])
+}
+
+model AdState {
+  id   String @id @db.VarChar(30)
+  name String @db.VarChar(20)
+  ads  Ad[]
+}
+
+model Ad {
+  id          String       @id @db.VarChar(30)
+  title       String
+  description String
+  totalWage   Float
+  createdDate DateTime     @default(now())
+  adStateId   String
+  clientId    String
+  adState     AdState      @relation(fields: [adStateId], references: [id])
+  client      Client       @relation(fields: [clientId], references: [id])
+  adCategories AdCategory[]
+  comments     AdComment[]
+  adJobs       AdJob[]
+}
+
+model AdCategory {
+  id             String      @id @db.VarChar(30)
+  adId           String
+  subCategoryId  String
+  ad             Ad          @relation(fields: [adId], references: [id])
+  subCategory    SubCategory @relation(fields: [subCategoryId], references: [id])
+}
+
+model AdComment {
+  id              String    @id @db.VarChar(30)
+  comment         String    @db.VarChar(1000)
+  createdDate     DateTime  @default(now())
+  commentWriterId String
+  adId            String
+  writer          Client    @relation("AdCommentWriter", fields: [commentWriterId], references: [id])
+  ad              Ad        @relation(fields: [adId], references: [id])
+}
+
+model AdJobState {
+  id    String   @id @db.VarChar(30)
+  name  String   @db.VarChar(20)
+  adJobs AdJob[]
+}
+
+model AdJob {
+  id                String     @id @db.VarChar(30)
+  title             String
+  description       String
+  vacancy           Int
+  isExperienceRequired Boolean
+  wage              Float
+  startDate         DateTime
+  endDate           DateTime
+  adJobStateId      String
+  adId              String
+  adJobState        AdJobState @relation(fields: [adJobStateId], references: [id])
+  ad                Ad         @relation(fields: [adId], references: [id])
+  jobRequests       JobRequest[]
+  escrows           Escrow[]
+}
+
+model JobRequest {
+  id         String     @id @db.VarChar(30)
+  adJobId    String
+  clientId   String
+  adJob      AdJob      @relation(fields: [adJobId], references: [id])
+  client     Client     @relation("ClientJobRequests", fields: [clientId], references: [id])
+  states     RequestState[]
+  ratings    JobRating[]
+  payments   Payment[]
+}
+
+model RequestStateRef {
+  id     String         @id @db.VarChar(30)
+  name   String
+  states RequestState[]
+}
+
+model RequestState {
+  id                 String           @id @db.VarChar(30)
+  createdDate        DateTime         @default(now())
+  jobRequestId       String
+  requestStateRefId  String
+  jobRequest         JobRequest       @relation(fields: [jobRequestId], references: [id])
+  requestStateRef    RequestStateRef  @relation(fields: [requestStateRefId], references: [id])
+}
+
+model RatingType {
+  id     String       @id @db.VarChar(30)
+  name   String
+  ratings JobRating[]
+}
+
+model RatingCategory {
+  id     String       @id @db.VarChar(30)
+  name   String
+  ratings JobRating[]
+}
+
+model JobRating {
+  id              String          @id @db.VarChar(30)
+  rating          Int
+  description     String          @db.VarChar(300)
+  jobRequestId    String
+  ratingTypeId    String
+  ratingCategoryId String
+  jobRequest      JobRequest      @relation(fields: [jobRequestId], references: [id])
+  ratingType      RatingType      @relation(fields: [ratingTypeId], references: [id])
+  ratingCategory  RatingCategory  @relation(fields: [ratingCategoryId], references: [id])
+}
+
+model Escrow {
+  id           String     @id @db.VarChar(30)
+  totalAmount  Float
+  state        String     @db.VarChar(30)
+  modifiedDate DateTime
+  adJobId      String
+  adJob        AdJob      @relation(fields: [adJobId], references: [id])
+  payments     Payment[]
+}
+
+model PaymentType {
+  id       String     @id @db.VarChar(30)
+  name     String
+  payments Payment[]
+}
+
+model Payment {
+  id             String      @id @db.VarChar(30)
+  amount         Float
+  createdDate    DateTime    @default(now())
+  escrowId       String
+  jobOrdererId   String
+  contractorId   String
+  jobRequestId   String
+  paymentTypeId  String
+  escrow         Escrow      @relation(fields: [escrowId], references: [id])
+  jobOrderer     Client      @relation("JobOrderer", fields: [jobOrdererId], references: [id])
+  contractor     Client      @relation("Contractor", fields: [contractorId], references: [id])
+  jobRequest     JobRequest  @relation(fields: [jobRequestId], references: [id])
+  paymentType    PaymentType @relation(fields: [paymentTypeId], references: [id])
+}
