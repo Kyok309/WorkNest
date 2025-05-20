@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useContext } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { 
@@ -10,15 +10,14 @@ import {
   ArrowRightIcon,
   UsersIcon
 } from "lucide-react";
-import Header from "./components/Header";
+import Footer from "./components/Footer";
+import UserContext from "@/context/UserStore";
 
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState("employer");
-
+  const { user } = useContext(UserContext);
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header/>
-      
+    <div className="w-full min-h-screen bg-gray-50">
 
       {/* Hero Section */}
       <div className="bg-[url(/background.png)] bg-cover py-20">
@@ -55,8 +54,9 @@ export default function LandingPage() {
                   <div>
                     <h3 className="text-lg font-medium text-gray-900">Ажлын зар нийтлэх</h3>
                     <p className="mt-2 text-gray-600">Мэргэжлийн гүйцэтгэгчидтэй холбогдож, даалгавраа хурдан гүйцэлдүүлээрэй</p>
-                    <Button className="mt-4 w-full" asChild> 
-                      <Link href="/login">
+                    <Button className="mt-4 w-full" asChild>
+
+                      <Link href={user ? "/ads" : "/login"}>
                       Үргэлжлүүлэх <ArrowRightIcon className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
@@ -216,74 +216,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center">
-                <BriefcaseIcon className="h-8 w-8 text-blue-400" />
-                <span className="ml-2 text-xl font-bold">WorkNest</span>
-              </div>
-              <p className="mt-4 text-gray-400">
-                Монголын анхны нэг удаагийн даалгавар, ажлын платформ
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Платформ</h3>
-              <ul className="space-y-2">
-                {["Бидний тухай", "Хэрхэн ажилладаг", "Аюулгүй байдал", "Үйлчилгээний нөхцөл", "Түгээмэл асуултууд"].map((item, index) => (
-                  <li key={index}>
-                    <Link href="#" className="text-gray-400 hover:text-white">
-                      {item}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Ангилалууд</h3>
-              <ul className="space-y-2">
-                {["Цэвэрлэгээ", "Тээвэрлэлт", "Бичиг баримт", "Засвар", "Бүх ангилал"].map((item, index) => (
-                  <li key={index}>
-                    <Link href="#" className="text-gray-400 hover:text-white">
-                      {item}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Холбоо барих</h3>
-              <ul className="space-y-2">
-                {["info@ajiltask.mn", "+976 8888-8888", "Улаанбаатар хот, Монгол улс"].map((item, index) => (
-                  <li key={index} className="text-gray-400">
-                    {item}
-                  </li>
-                ))}
-                <li className="mt-4">
-                  <div className="flex space-x-4">
-                    {["Facebook", "Instagram", "Twitter"].map((item, index) => (
-                      <Link key={index} href="#" className="text-gray-400 hover:text-white">
-                        {item}
-                      </Link>
-                    ))}
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 mt-12 pt-8">
-            <p className="text-center text-gray-400">
-              &copy; {new Date().getFullYear()} WorkNest. Бүх эрх хамгаалагдсан.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 }
