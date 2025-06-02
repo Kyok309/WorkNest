@@ -29,7 +29,8 @@ const AddAd = () => {
         description: '',
         vacancy: 1,
         isExperienceRequired: false,
-        wage: '',
+        wage: '0',
+        totalAmount: 0,
         startDate: '',
         endDate: '',
     }]);
@@ -129,17 +130,21 @@ const AddAd = () => {
                 [name]: type === 'checkbox' ? checked : value
             };
 
-            // If wage is being changed, update totalWage
-            if (name === 'wage') {
-                const totalWage = newJobs.reduce((sum, job) => {
-                    const wage = parseFloat(job.wage) || 0;
-                    return sum + wage;
-                }, 0);
-                setFormData(prev => ({
-                    ...prev,
-                    totalWage
-                }));
-            }
+            // Always recalculate totalAmount for wage and vacancy changes
+            const wage = name === 'wage' ? parseFloat(value) || 0 : parseFloat(newJobs[index].wage) || 0;
+            const vacancy = name === 'vacancy' ? parseInt(value) || 0 : parseInt(newJobs[index].vacancy) || 0;
+            
+            newJobs[index].totalAmount = wage * vacancy;
+            
+            // Update form's totalWage based on all jobs
+            const totalWage = newJobs.reduce((sum, job) => {
+                return sum + (job.totalAmount || 0);
+            }, 0);
+            
+            setFormData(prev => ({
+                ...prev,
+                totalWage
+            }));
         }
         
         setJobs(newJobs);
@@ -151,7 +156,8 @@ const AddAd = () => {
             description: '',
             vacancy: 1,
             isExperienceRequired: false,
-            wage: '',
+            wage: '0',
+            totalAmount: 0,
             startDate: '',
             endDate: '',
         }]);
@@ -221,30 +227,54 @@ const AddAd = () => {
         setIsLoading(true);
 
         try {
+            // Ensure all jobs have totalAmount calculated before submission
+            const processedJobs = jobs.map(job => {
+                const wage = parseFloat(job.wage) || 0;
+                const vacancy = parseInt(job.vacancy) || 0;
+                const totalAmount = wage * vacancy;
+                return {
+                    ...job,
+                    wage: wage,
+                    vacancy: vacancy,
+                    totalAmount: totalAmount
+                };
+            });
+
+            // Calculate total wage from all jobs
+            const totalWage = processedJobs.reduce((sum, job) => sum + job.totalAmount, 0);
+
+            const payload = {
+                ...formData,
+                totalWage: totalWage,
+                adJobs: processedJobs,
+                selectedSubcategories: selectedSubcategories.map(sub => sub.id)
+            };
+
+            console.log('Submitting payload:', payload);
+
             const response = await fetch('/api/ads', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    ...formData,
-                    adJobs: jobs,
-                    selectedSubcategories: selectedSubcategories.map(sub => sub.id)
-                }),
+                body: JSON.stringify(payload),
             });
             const data = await response.json();
-            console.log(data);
+            console.log('Response:', data);
 
             if (!response.ok) {
-                console.log(response.error);
-                throw new Error(response.error);
+                throw new Error(data.error || 'Failed to create ad');
             }
 
             router.push('/ads');
             router.refresh();
         } catch (error) {
             console.error('Error creating ad:', error);
-            alert('Зар үүсгэхэд алдаа гарлаа. Дараа дахин оролдоно уу.');
+            toast({
+                title: 'Алдаа',
+                description: error.message || 'Зар үүсгэхэд алдаа гарлаа. Дараа дахин оролдоно уу.',
+                variant: 'destructive',
+            });
         } finally {
             setIsLoading(false);
         }
@@ -450,7 +480,7 @@ const AddAd = () => {
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
                                                     <Label className="block text-sm font-medium mb-1">
-                                                        Шалгаруулах тоо
+                                                        Орон тоо
                                                     </Label>
                                                     <Input
                                                         type="number"

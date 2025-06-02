@@ -47,4 +47,61 @@ export async function DELETE(request, { params }) {
             { status: 500 }
         );
     }
+}
+
+export async function GET(request, { params }) {
+    try {
+        const service = await prisma.service.findUnique({
+            where: {
+                id: params.serviceId
+            },
+            include: {
+                client: {
+                    select: {
+                        id: true,
+                        firstname: true,
+                        lastname: true,
+                        email: true,
+                        phoneNum: true,
+                        profileImage: true
+                    }
+                },
+                subcategory: {
+                    include: {
+                        category: true
+                    }
+                },
+                comments: {
+                    include: {
+                        writer: {
+                            select: {
+                                id: true,
+                                firstname: true,
+                                lastname: true,
+                                profileImage: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        createdDate: 'desc'
+                    }
+                }
+            }
+        });
+
+        if (!service) {
+            return NextResponse.json(
+                { error: 'Service not found' },
+                { status: 404 }
+            );
+        }
+
+        return NextResponse.json(service);
+    } catch (error) {
+        console.error('Error fetching service:', error);
+        return NextResponse.json(
+            { error: 'Failed to fetch service' },
+            { status: 500 }
+        );
+    }
 } 

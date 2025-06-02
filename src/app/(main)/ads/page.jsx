@@ -1,25 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from '@/hooks/use-toast';
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, ChevronDown, ChevronRight, UserIcon } from "lucide-react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Search, ChevronDown, ChevronRight, UserIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
+import UserContext from "@/context/UserStore";
 
 export default function Ads() {
+  const {user} = useContext(UserContext);
+  const { toast } = useToast();
   const [ads, setAds] = useState([]);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [maxWage, setMaxWage] = useState(1000000);
   const [wageRange, setWageRange] = useState([0, 1000000]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("newest");
@@ -35,6 +38,7 @@ export default function Ads() {
         if (data.length > 0) {
           const maxWage = Math.max(...data.map(ad => ad.totalWage));
           const roundedMaxWage = Math.ceil(maxWage / 1000000) * 1000000;
+          setMaxWage(roundedMaxWage);
           setWageRange([0, roundedMaxWage]);
         }
       } catch (error) {
@@ -151,7 +155,7 @@ export default function Ads() {
                       value={wageRange}
                       onValueChange={setWageRange}
                       min={0}
-                      max={wageRange[1]}
+                      max={maxWage}
                       step={10000}
                     />
                     <div className="flex justify-between mt-2 text-sm text-gray-500">
@@ -251,15 +255,18 @@ export default function Ads() {
                           <div key={job.id} className="border rounded-lg p-3 bg-gray-50">
                               <div className="flex justify-between items-start">
                                 <div>
-                                <h5 className="font-medium">{job.title}</h5>
-                                <p className="text-sm text-gray-600 mt-1">{job.description}</p>
+                                  <h5 className="font-medium">{job.title}</h5>
+                                  <p className="text-sm text-gray-600 mt-1">{job.description}</p>
+                                  <div className="mt-2 text-sm text-gray-500">
+                                    Дуусах хугацаа: {new Date(job.endDate).toLocaleDateString()}
+                                  </div>
                                 </div>
-                                <Badge variant="outline" className="text-green-500 border-green-500">
-                                {job.wage.toLocaleString()}₮
-                                </Badge>
-                              </div>
-                              <div className="mt-2 text-sm text-gray-500">
-                              Дуусах хугацаа: {new Date(job.endDate).toLocaleDateString()}
+                                <div className="flex flex-col gap-4 items-end">
+                                  <Badge variant="outline" className="w-fit text-green-500 border-green-500">
+                                  {job.wage.toLocaleString()}₮
+                                  </Badge>
+                                  
+                                </div>
                               </div>
                             </div>
                           ))}

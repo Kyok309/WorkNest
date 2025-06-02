@@ -4,7 +4,7 @@ import { useContext, useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UserIcon, Star, Briefcase, MessageSquare, Plus, Edit, EditIcon, UploadIcon, ChevronRight } from "lucide-react";
+import { UserIcon, Star, Briefcase, MessageSquare, Plus, Edit, EditIcon, ChevronRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,10 @@ import AddService from "../components/AddService";
 import EditService from "../components/EditService";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-
+import { format } from "date-fns";
+import { mn } from "date-fns/locale";
+import { toast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const Profile = () => {
     const params = useParams();
     const [client, setClient] = useState(null);
@@ -26,6 +29,32 @@ const Profile = () => {
     const [ads, setAds] = useState([]);
     const {user, setUser} = useContext(UserContext);
     const fileInputRef = useRef(null);
+    const { clientID } = useParams();
+    const [completedJobs, setCompletedJobs] = useState([]);
+
+    useEffect(() => {
+        const fetchCompletedJobs = async () => {
+            try {
+                const response = await fetch(`/api/clients/${clientID}/completed-jobs`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch completed jobs');
+                }
+                const data = await response.json();
+                setCompletedJobs(data);
+            } catch (error) {
+                console.error('Error fetching completed jobs:', error);
+                toast({
+                    title: "Алдаа",
+                    description: "Мэдээлэл ачаалахад алдаа гарлаа. Дараа дахин оролдоно уу.",
+                    variant: "destructive",
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCompletedJobs();
+    }, [clientID]);
 
     useEffect(() => {
         const fetchClientData = async () => {
@@ -358,7 +387,7 @@ const Profile = () => {
                                         <p className="text-gray-600">Туршлага: {client.pastExperience}</p>
                                         <p className="text-gray-600">Утас: {client.phoneNum}</p>
                                         <p className="text-gray-600">Хаяг: {client.homeAddress}</p>
-                                        <p className="text-gray-600">Төрсөн огноо: {new Date(client.birthDate).toLocaleDateString()}</p>
+                                        <p className="text-gray-600">Төрсөн огноо: {new Date(client.birthDate).getFullYear()}</p>
                                         <p className="text-gray-600">Хүйс: {client.gender}</p>
                                     </>
                                 )}
@@ -461,67 +490,73 @@ const Profile = () => {
                                     <CardTitle>Зар</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    {client.ads?.length > 0 ? (
-                                        <div className="grid gap-4">
-                                            {client.ads.map((ad) => (
-                                                <Card key={ad.id}>
-                                                    <CardContent className="flex gap-4 p-4">
-                                                        <div className="flex-1">
-                                                            <div className="flex flex-wrap justify-between">
-                                                                <h3 className="text-xl font-bold">{ad.title}</h3>
-                                                                <span className="font-semibold">
-                                                                    {ad.totalWage.toLocaleString()}₮
-                                                                </span>
-                                                            </div>
-
-                                                            <p className="text-gray-600">{ad.description}</p>
-
-                                                            <div className="flex flex-wrap gap-2 mt-3">
-                                                                {ad.adCategories?.map((adCategory) => (
-                                                                    <Badge key={adCategory.id} variant="outline" className="w-fit px-2 py-2 bg-indigo-100 text-indigo-900 border-indigo-200">
-                                                                        {adCategory.subCategory.category.name} - {adCategory.subCategory.name}
-                                                                    </Badge>
-                                                                ))}
-                                                            </div>
-
-                                                            <div className="mt-4">
-                                                                <h4 className="font-medium mb-2">Ажлууд:</h4>
-                                                                <div className="space-y-2">
-                                                                    {ad.adJobs?.map((job) => (
-                                                                        <div key={job.id} className="border rounded-lg p-3 bg-gray-50">
-                                                                            <div className="flex justify-between items-start">
-                                                                                <div>
-                                                                                    <h5 className="font-medium">{job.title}</h5>
-                                                                                    <p className="text-sm text-gray-600 mt-1">{job.description}</p>
-                                                                                </div>
-                                                                                <Badge variant="outline" className="text-green-500 border-green-500">
-                                                                                    {job.wage.toLocaleString()}₮
-                                                                                </Badge>
-                                                                            </div>
-                                                                            <div className="mt-2 text-sm text-gray-500">
-                                                                                Дуусах хугацаа: {new Date(job.endDate).toLocaleDateString()}
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="flex justify-end items-center mt-4">
-                                                                <Link href={`/ads/${ad.id}`}>
-                                                                    <div className="flex items-center gap-2 hover:text-indigo-500">
-                                                                        Дэлгэрэнгүй
-                                                                        <ChevronRight className="w-4 h-4" />
-                                                                    </div>
-                                                                </Link>
-                                                            </div>
+                                {completedJobs.map((jobRequest) => (
+                                    <Card key={jobRequest.id}>
+                                        <CardHeader>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center space-x-4">
+                                                    <Avatar>
+                                                        <AvatarImage src={jobRequest.adJob.ad.client.profileImage} />
+                                                        <AvatarFallback>
+                                                            {jobRequest.adJob.ad.client.firstname[0]}{jobRequest.adJob.ad.client.lastname[0]}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <h3 className="font-medium">
+                                                            {jobRequest.adJob.ad.client.firstname} {jobRequest.adJob.ad.client.lastname}
+                                                        </h3>
+                                                        <p className="text-sm text-gray-500">
+                                                            Дууссан: {format(new Date(jobRequest.states[0]?.createdDate), 'PPP', { locale: mn })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <Badge variant="outline" className="text-green-500 border-green-500">
+                                                    Дууссан
+                                                </Badge>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="space-y-4">
+                                                <div className="border rounded-lg p-4">
+                                                    <h4 className="font-medium mb-2">{jobRequest.adJob.title}</h4>
+                                                    <p className="text-sm text-gray-600 mb-2">{jobRequest.adJob.description}</p>
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="text-sm text-gray-500">
+                                                            Дуусах хугацаа: {format(new Date(jobRequest.adJob.endDate), 'PPP', { locale: mn })}
                                                         </div>
-                                                    </CardContent>
-                                                </Card>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="text-gray-500">Зар байхгүй байна.</p>
-                                    )}
+                                                        <Badge variant="outline" className="text-green-500 border-green-500">
+                                                            {jobRequest.adJob.wage.toLocaleString()}₮
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                                {jobRequest.ratings && jobRequest.ratings.length > 0 && (
+                                                    <div className="border rounded-lg p-4">
+                                                        <h4 className="font-medium mb-2">Үнэлгээ</h4>
+                                                        <div className="space-y-2">
+                                                            {jobRequest.ratings.map((rating) => (
+                                                                <div key={rating.id} className="flex items-center justify-between">
+                                                                    <div className="flex items-center space-x-2">
+                                                                        <Star className="h-4 w-4 text-yellow-400" />
+                                                                        <span className="text-sm">
+                                                                            {rating.ratingCategory.name} - {rating.ratingType.name}
+                                                                        </span>
+                                                                    </div>
+                                                                    <span className="text-sm font-medium">{rating.rating}/5</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                                {completedJobs.length === 0 && (
+                                    <p className="text-center text-gray-500 py-4">
+                                        Одоогоор дууссан ажил байхгүй байна.
+                                    </p>
+                                )}
+                                    
                                 </CardContent>
                             </Card>
                         </TabsContent>
@@ -576,7 +611,13 @@ const Profile = () => {
                                                                 </div>
                                                             </div>
 
-                                                            <div className="flex flex-wrap items-center justify-end mt-4">
+                                                            <div className="flex flex-wrap items-center justify-between mt-4">
+                                                                <Button variant="outline" asChild>
+                                                                    <Link className="flex items-center gap-2" href={`/ads/${ad.id}/requests`}>
+                                                                        Хүсэлтүүд
+                                                                        <Mail className="w-4 h-4" />
+                                                                    </Link>
+                                                                </Button>
                                                                 <Link href={`/ads/${ad.id}`}>
                                                                     <div className="flex items-center gap-2 hover:text-indigo-500">
                                                                         Дэлгэрэнгүй

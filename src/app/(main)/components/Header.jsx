@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import {BriefcaseIcon, LogOut, ScrollText, User, UserIcon} from "lucide-react";
+import {BriefcaseIcon, LogOut, Mail, ScrollText, User, UserIcon} from "lucide-react";
 import { useContext } from 'react';
 import UserContext from '@/context/UserStore';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -78,9 +78,15 @@ const Header = () => {
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
-                                        <Link href="/report" className="flex gap-4">
+                                        <Link href={`/${user.id}/requests`} className="flex gap-4">
+                                            <Mail/>
+                                            <span>Миний хүсэлтүүд</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <Link href={`/${user.id}/payments`} className="flex gap-4">
                                             <ScrollText/>
-                                            <span>Тайлан</span>
+                                            <span>Төлбөр</span>
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={handleLogout} className="flex gap-4">

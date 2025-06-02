@@ -152,6 +152,7 @@ model AdJob {
   vacancy           Int
   isExperienceRequired Boolean
   wage              Float
+  totalWage         Float?
   startDate         DateTime
   endDate           DateTime
   adJobStateId      String

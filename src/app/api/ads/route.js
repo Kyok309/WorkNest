@@ -71,15 +71,21 @@ export async function POST(request) {
             });
 
             const adJobs = await Promise.all(
-                body.adJobs.map(job =>
-                    prisma.adJob.create({
+                body.adJobs.map(job => {
+                    // Ensure we have valid numbers
+                    const wage = parseFloat(job.wage) || 0;
+                    const vacancy = parseInt(job.vacancy) || 0;
+                    const totalAmount = parseFloat(job.totalAmount) || wage * vacancy;
+
+                    return prisma.adJob.create({
                         data: {
                             id: nanoid(21),
                             title: job.title,
                             description: job.description,
-                            vacancy: parseInt(job.vacancy),
+                            vacancy: vacancy,
                             isExperienceRequired: job.isExperienceRequired || false,
-                            wage: parseFloat(job.wage),
+                            wage: wage,
+                            totalWage: totalAmount,
                             startDate: new Date(job.startDate),
                             endDate: new Date(job.endDate),
                             adJobStateId: 'VdKL0P7s9yn1CqTG4Fxru',
@@ -87,14 +93,14 @@ export async function POST(request) {
                             escrows: {
                                 create: {
                                     id: nanoid(21),
-                                    totalAmount: parseFloat(job.wage),
+                                    totalAmount: totalAmount,
                                     state: 'Төлбөр байршуулсан',
                                     modifiedDate: new Date()
                                 }
                             }
                         },
-                    })
-                )
+                    });
+                })
             );
 
             const adCategories = await Promise.all(

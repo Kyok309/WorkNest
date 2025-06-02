@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronDown, ChevronUp, ChevronRight, Search } from "lucide-react";
+import { ChevronDown, ChevronUp, ChevronRight, Search, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 const Services = () => {
     const [services, setServices] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -16,8 +18,10 @@ const Services = () => {
     const [selectedSubcategories, setSelectedSubcategories] = useState([]);
     const [expandedCategories, setExpandedCategories] = useState({});
     const [searchQuery, setSearchQuery] = useState("");
+    const [maxWage, setMaxWage] = useState(1000000);
     const [wageRange, setWageRange] = useState([0, 1000000]);
     const [loading, setLoading] = useState(true);
+    const [sortBy, setSortBy] = useState("highestWage");
 
     useEffect(() => {
         const fetchServices = async () => {
@@ -25,6 +29,10 @@ const Services = () => {
                 const response = await fetch('/api/services');
                 const data = await response.json();
                 setServices(data);
+                const maxServiceWage = Math.max(...data.map(service => service.wage || 0));
+                const roundedMaxWage = Math.ceil(maxServiceWage / 100000) * 100000;
+                setMaxWage(roundedMaxWage);
+                setWageRange([0, roundedMaxWage]);
             } catch (error) {
                 console.error('Error fetching services:', error);
             } finally {
@@ -88,6 +96,17 @@ const Services = () => {
         return matchesSearch && matchesSubcategory && matchesWage;
     });
 
+    const sortedServices = [...filteredServices].sort((a, b) => {
+        switch (sortBy) {
+            case "highestWage":
+                return b.wage - a.wage;
+            case "lowestWage":
+                return a.wage - b.wage;
+            default:
+                return 0;
+        }
+    });
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -125,7 +144,7 @@ const Services = () => {
                                             value={wageRange}
                                             onValueChange={setWageRange}
                                             min={0}
-                                            max={1000000}
+                                            max={maxWage}
                                             step={10000}
                                         />
                                         <div className="flex justify-between mt-2 text-sm text-gray-500">
@@ -181,8 +200,22 @@ const Services = () => {
 
                 {/* Services List */}
                 <div className="md:col-span-3">
+                    <div className="flex justify-between items-center mb-4">
+                        <div className="text-xl font-semibold text-gray-700">
+                            {filteredServices.length} {filteredServices.length === 1 ? 'үйлчилгээ' : 'үйлчилгээ'} олдлоо
+                        </div>
+                        <Select value={sortBy} onValueChange={setSortBy}>
+                            <SelectTrigger className="w-[200px]">
+                                <SelectValue placeholder="Эрэмбэлэх" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="highestWage">Цалин өндөр нь эхэнд</SelectItem>
+                                <SelectItem value="lowestWage">Цалин бага нь эхэнд</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <div className="grid gap-4">
-                        {filteredServices.map((service) => (
+                        {sortedServices.map((service) => (
                             <Card key={service.id}>
                                 <CardContent className="flex gap-4 p-4">
                                     {service.imageURL && (
