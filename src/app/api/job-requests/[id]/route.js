@@ -5,14 +5,12 @@ export async function DELETE(request, { params }) {
     try {
         const { id } = params;
 
-        // First delete all associated request states
         await prisma.requestState.deleteMany({
             where: {
                 jobRequestId: id
             }
         });
 
-        // Then delete the job request
         await prisma.jobRequest.delete({
             where: {
                 id: id

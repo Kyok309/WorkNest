@@ -37,13 +37,10 @@ export async function POST(request) {
     try {
         const data = await request.json();
         
-        // Generate employee ID
         const employeeId = `emp_${nanoid(21)}`;
         
-        // Hash the password
         const hashedPassword = await bcrypt.hash(data.password, 10);
 
-        // Convert phone number to integer
         const phoneNum = parseInt(data.phoneNum.replace(/\D/g, ''), 10);
         if (isNaN(phoneNum)) {
             return NextResponse.json(
@@ -52,7 +49,6 @@ export async function POST(request) {
             );
         }
         
-        // Create the employee with the generated ID and hashed password
         const employee = await prisma.employee.create({
             data: {
                 id: employeeId,
@@ -75,13 +71,11 @@ export async function POST(request) {
             }
         });
 
-        // Remove password from the response
         const { password, ...employeeWithoutPassword } = employee;
         
         return NextResponse.json(employeeWithoutPassword, { status: 201 });
     } catch (error) {
         console.error('Error creating employee:', error);
-        // Check for unique constraint violation
         if (error.code === 'P2002') {
             return NextResponse.json(
                 { error: 'Email or username already exists' },

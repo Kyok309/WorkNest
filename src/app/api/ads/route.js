@@ -65,14 +65,13 @@ export async function POST(request) {
                     description: body.description,
                     totalWage: parseFloat(body.totalWage),
                     createdDate: new Date(),
-                    adStateId: 'V1StGXR8_Z5jdHi6B-myT', // Default state ID
-                    clientId: body.clientId, // This should come from the authenticated user
+                    adStateId: 'V1StGXR8_Z5jdHi6B-myT',
+                    clientId: body.clientId,
                 },
             });
 
             const adJobs = await Promise.all(
                 body.adJobs.map(job => {
-                    // Ensure we have valid numbers
                     const wage = parseFloat(job.wage) || 0;
                     const vacancy = parseInt(job.vacancy) || 0;
                     const totalAmount = parseFloat(job.totalAmount) || wage * vacancy;

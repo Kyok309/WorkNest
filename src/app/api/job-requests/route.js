@@ -7,7 +7,6 @@ export async function POST(request) {
         const data = await request.json();
         const { userId, adJobId } = data;
 
-        // Check if a request already exists
         const existingRequest = await prisma.jobRequest.findFirst({
             where: {
                 clientId: userId,
@@ -22,7 +21,6 @@ export async function POST(request) {
             );
         }
 
-        // Create new job request
         const jobRequest = await prisma.jobRequest.create({
             data: {
                 id: nanoid(21),

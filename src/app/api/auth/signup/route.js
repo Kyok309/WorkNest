@@ -9,7 +9,6 @@ export async function POST(request) {
   try {
     const { lastname, firstname, email, password, phoneNum } = await request.json();
 
-    // Validate required fields
     if (!lastname || !firstname || !email || !password) {
       return NextResponse.json(
         { error: "Бүх талбарыг бөглөн бичих ёстой." },
@@ -17,7 +16,6 @@ export async function POST(request) {
       );
     }
 
-    // Check if user already exists
     const existingUser = await prisma.client.findFirst({
       where: { email },
     });
@@ -40,13 +38,10 @@ export async function POST(request) {
       );
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate a unique ID for the client using nanoid
     const id = `CL${nanoid(21)}`;
 
-    // Create new user
     const user = await prisma.client.create({
       data: {
         id,
@@ -65,7 +60,6 @@ export async function POST(request) {
       },
     });
 
-    // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
 
     return NextResponse.json(

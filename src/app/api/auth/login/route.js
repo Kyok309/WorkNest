@@ -9,7 +9,6 @@ export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
-    // Validate input
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Имейл болон нууц үгээ бөглөнө үү.' },
@@ -17,7 +16,6 @@ export async function POST(request) {
       );
     }
 
-    // Get user from database using Prisma
     const user = await prisma.client.findFirst({
       where: { email }
     });
@@ -31,7 +29,6 @@ export async function POST(request) {
       );
     }
 
-    // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return NextResponse.json(
@@ -40,7 +37,6 @@ export async function POST(request) {
       );
     }
 
-    // Generate JWT token
     const token = jwt.sign(
       { 
         userId: user.id, 
@@ -51,11 +47,9 @@ export async function POST(request) {
       { expiresIn: '1d' }
     );
 
-    // Remove password from user object
     const { password: _, ...userWithoutPassword } = user;
     console.log(userWithoutPassword);
 
-    // Set HTTP-only cookie
     const response = NextResponse.json(
       { 
         message: 'Login successful',
@@ -68,7 +62,7 @@ export async function POST(request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 86400 // 1 day
+      maxAge: 86400
     });
 
     return response;

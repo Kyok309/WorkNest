@@ -59,7 +59,6 @@ const EditService = ({ service, onSave }) => {
                 const response = await fetch('/api/subcategories');
                 const data = await response.json();
                 setSubcategories(data);
-                // Set the selected category based on the service's subcategory
                 if (service?.subcategoryId) {
                     const subcategory = data.find(sub => sub.id === service.subcategoryId);
                     if (subcategory) {
@@ -120,7 +119,7 @@ const EditService = ({ service, onSave }) => {
         setSelectedCategory(categoryId);
         setFormData(prev => ({
             ...prev,
-            subcategoryId: "" // Reset subcategory when category changes
+            subcategoryId: ""
         }));
     };
 

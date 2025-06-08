@@ -24,11 +24,10 @@ const AddEmployee = ({ onEmployeeAdded }) => {
         employeeRoleId: "",
     });
 
-    // Fetch employee roles
     useEffect(() => {
         const fetchRoles = async () => {
             try {
-                const response = await fetch('/api/employee-roles');
+                const response = await fetch('/api/employeerole');
                 const data = await response.json();
                 setEmployeeRoles(data);
             } catch (error) {
@@ -103,7 +102,7 @@ const AddEmployee = ({ onEmployeeAdded }) => {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="flex gap-2 bg-green-500 text-white">
+                <Button className="bg-green-500 text-white hover:bg-green-600 hover:text-white">
                     <Plus/>
                     Ажилтан нэмэх
                 </Button>

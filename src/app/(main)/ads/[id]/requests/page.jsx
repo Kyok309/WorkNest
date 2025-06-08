@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { Check, X } from 'lucide-react';
+import {  CornerUpLeft } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -21,11 +21,11 @@ const Requests = () => {
     const [ad, setAd] = useState(null);
     const [loading, setLoading] = useState(true);
     const [requestStateRefs, setRequestStateRefs] = useState([]);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch ad data
                 const adResponse = await fetch(`/api/ads/${id}`);
                 if (!adResponse.ok) {
                     throw new Error('Failed to fetch ad');
@@ -33,8 +33,7 @@ const Requests = () => {
                 const adData = await adResponse.json();
                 setAd(adData);
 
-                // Fetch request state refs
-                const stateRefsResponse = await fetch('/api/request-state-refs');
+                const stateRefsResponse = await fetch('/api/requeststateref');
                 if (!stateRefsResponse.ok) {
                     throw new Error('Failed to fetch request state refs');
                 }
@@ -73,7 +72,6 @@ const Requests = () => {
 
             const newState = await response.json();
 
-            // Update the local state
             setAd(prev => ({
                 ...prev,
                 adJobs: prev.adJobs.map(job => ({
@@ -114,6 +112,10 @@ const Requests = () => {
 
     return (
         <div className="container mx-auto py-8">
+            <Button variant="outline" onClick={() => router.back()} className="w-fit mb-6">
+                    <CornerUpLeft/>
+                    Буцах
+            </Button>
             <h1 className="text-2xl font-bold mb-6">Ажлын хүсэлтүүд</h1>
             <div className="space-y-6">
                 {ad?.adJobs?.map((job) => (
@@ -159,8 +161,9 @@ const Requests = () => {
                                                 <Select
                                                     value={request.states[0]?.requestStateRef?.id}
                                                     onValueChange={(value) => handleStateChange(request.id, value)}
+                                                    disabled={request.states[0]?.requestStateRef?.name === 'Дууссан'}
                                                 >
-                                                    <SelectTrigger className="w-[180px]">
+                                                    <SelectTrigger className={`w-[180px] ${request.states[0]?.requestStateRef?.name === 'Дууссан' ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                                         <SelectValue placeholder="Төлөв сонгох" />
                                                     </SelectTrigger>
                                                     <SelectContent>

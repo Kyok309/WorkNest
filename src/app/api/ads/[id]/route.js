@@ -94,7 +94,6 @@ export async function PUT(request, { params }) {
         const { id } = params;
         const data = await request.json();
 
-        // First, update the basic ad information
         const updatedAd = await prisma.ad.update({
             where: {
                 id: id
@@ -128,9 +127,7 @@ export async function PUT(request, { params }) {
             }
         });
 
-        // Update jobs
         if (data.adJobs) {
-            // Get existing jobs
             const existingJobs = await prisma.adJob.findMany({
                 where: {
                     adId: id
@@ -140,7 +137,6 @@ export async function PUT(request, { params }) {
                 }
             });
 
-            // Update or create jobs
             await Promise.all(data.adJobs.map(async (job, index) => {
                 const wage = parseInt(job.wage) || 0;
                 const vacancy = parseInt(job.vacancy) || 0;
@@ -165,7 +161,6 @@ export async function PUT(request, { params }) {
 
                 if (existingJobs[index]) {
                     const existingEscrow = existingJobs[index].escrows[0];
-                    // Update existing job
                     return prisma.adJob.update({
                         where: {
                             id: existingJobs[index].id
@@ -185,7 +180,6 @@ export async function PUT(request, { params }) {
                         }
                     });
                 } else {
-                    // Create new job
                     return prisma.adJob.create({
                         data: {
                             ...jobData,
@@ -203,7 +197,6 @@ export async function PUT(request, { params }) {
                 }
             }));
 
-            // Delete any extra jobs that weren't updated
             if (existingJobs.length > data.adJobs.length) {
                 await prisma.adJob.deleteMany({
                     where: {
@@ -215,16 +208,13 @@ export async function PUT(request, { params }) {
             }
         }
 
-        // Update categories if provided
         if (data.selectedSubcategories) {
-            // Delete existing categories
             await prisma.adCategory.deleteMany({
                 where: {
                     adId: id
                 }
             });
 
-            // Create new categories
             await Promise.all(data.selectedSubcategories.map(subcategoryId =>
                 prisma.adCategory.create({
                     data: {
@@ -244,7 +234,6 @@ export async function PUT(request, { params }) {
             ));
         }
 
-        // Fetch the updated ad with all relations
         const finalAd = await prisma.ad.findUnique({
             where: {
                 id: id

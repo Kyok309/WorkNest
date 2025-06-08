@@ -8,7 +8,6 @@ export async function POST(request) {
   try {
     const { username, password } = await request.json();
 
-    // Validate input
     if (!username || !password) {
       return NextResponse.json(
         { error: 'Username and password are required.' },
@@ -16,7 +15,6 @@ export async function POST(request) {
       );
     }
 
-    // Get employee from database using Prisma
     const employee = await prisma.employee.findFirst({
       where: { username, password },
       include: {
@@ -31,8 +29,6 @@ export async function POST(request) {
       );
     }
 
-    // Skip password verification and proceed with login
-    // Generate JWT token
     const token = jwt.sign(
       { 
         employeeId: employee.id, 
@@ -43,10 +39,8 @@ export async function POST(request) {
       { expiresIn: '1d' }
     );
 
-    // Remove password from employee object
     const { password: _, ...employeeWithoutPassword } = employee;
 
-    // Set HTTP-only cookie
     const response = NextResponse.json(
       { 
         message: 'Login successful',
@@ -59,7 +53,7 @@ export async function POST(request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 86400 // 1 day
+      maxAge: 86400
     });
 
     return response;

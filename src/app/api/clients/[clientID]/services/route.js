@@ -16,7 +16,6 @@ export async function GET(request, { params }) {
             }
         });
 
-        // Ensure all services have subcategory data
         const servicesWithSubcategory = services.map(service => {
             if (!service.subcategory) {
                 console.warn(`Service ${service.id} is missing subcategory data`);

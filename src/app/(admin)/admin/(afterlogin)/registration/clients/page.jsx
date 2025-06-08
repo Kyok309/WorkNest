@@ -10,10 +10,9 @@ const ClientsRegistration = () => {
     const [editingClient, setEditingClient] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortOrder, setSortOrder] = useState('desc'); // 'asc' or 'desc'
+    const [sortOrder, setSortOrder] = useState('desc');
     const router = useRouter();
 
-    // Fetch clients
     useEffect(() => {
         const fetchClients = async () => {
             try {
@@ -30,11 +29,10 @@ const ClientsRegistration = () => {
         fetchClients();
     }, []);
 
-    // Handle client added
     const handleClientAdded = (newClient) => {
         setClients(prevClients => {
             const updatedClients = [...prevClients, newClient];
-            // Apply current sorting
+
             updatedClients.sort((a, b) => {
                 const dateA = new Date(a.createdDate);
                 const dateB = new Date(b.createdDate);
@@ -44,11 +42,9 @@ const ClientsRegistration = () => {
         });
     };
 
-    // Handle search and sort
     useEffect(() => {
         let result = [...clients];
         
-        // Apply search filter
         if (searchTerm) {
             result = result.filter(client => 
                 client.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,7 +52,6 @@ const ClientsRegistration = () => {
             );
         }
         
-        // Apply sorting
         result.sort((a, b) => {
             const dateA = new Date(a.createdDate);
             const dateB = new Date(b.createdDate);
@@ -68,12 +63,10 @@ const ClientsRegistration = () => {
         setFilteredClients(result);
     }, [searchTerm, sortOrder, clients]);
 
-    // Handle edit mode
     const handleEdit = (client) => {
         setEditingClient({ ...client });
     };
 
-    // Handle input change
     const handleInputChange = (e, field) => {
         setEditingClient({
             ...editingClient,
@@ -81,12 +74,10 @@ const ClientsRegistration = () => {
         });
     };
 
-    // Handle save
     const handleSave = async () => {
         try {
             const formData = new FormData();
             
-            // Add all the client data to FormData
             formData.append('firstname', editingClient.firstname);
             formData.append('lastname', editingClient.lastname);
             formData.append('email', editingClient.email);
@@ -96,7 +87,6 @@ const ClientsRegistration = () => {
             formData.append('gender', editingClient.gender);
             formData.append('registerNum', editingClient.registerNum);
             
-            // Optional fields from the schema
             if (editingClient.education) formData.append('education', editingClient.education);
             if (editingClient.pastExperience) formData.append('pastExperience', editingClient.pastExperience);
 
@@ -132,10 +122,9 @@ const ClientsRegistration = () => {
     }
 
     return (
-        <div className="p-6">
+        <div className="min-h-screen h-fit p-6">
             <h1 className="text-2xl font-bold mb-6">Үйлчлүүлэгчийн бүртгэл</h1>
             
-            {/* Search and Sort Controls */}
             <div className="mb-4 flex items-center space-x-4">
                 <div className="flex-1">
                     <input

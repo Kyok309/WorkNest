@@ -224,7 +224,6 @@ const AdDetail = () => {
 
         if (!selectedSubcategory) return;
 
-        // Check if subcategory is already selected
         if (selectedSubcategories.some(sub => sub.id === editedAd.subcategoryId)) {
             toast({
                 title: 'Алдаа',
@@ -237,12 +236,11 @@ const AdDetail = () => {
         setSelectedSubcategories(prev => [...prev, selectedSubcategory]);
         setEditedAd(prev => ({
             ...prev,
-            subcategoryId: '', // Reset selection after adding
+            subcategoryId: '', 
         }));
     };
 
     const removeSubcategory = async (subcategoryId) => {
-        // Prevent removing if it's the only subcategory
         if (selectedSubcategories.length <= 1) {
             toast({
                 title: "Сануулга",
@@ -260,12 +258,10 @@ const AdDetail = () => {
                 throw new Error('Failed to remove category');
             }
 
-            // Update UI state
             setSelectedSubcategories(prev => 
                 prev.filter(sub => sub.id !== subcategoryId)
             );
             
-            // Update editedAd state to reflect the change
             setEditedAd(prev => ({
                 ...prev,
                 adCategories: prev.adCategories.filter(cat => cat.subCategory.id !== subcategoryId)
@@ -310,14 +306,12 @@ const AdDetail = () => {
     const handleJobChange = (index, e) => {
         const newJobs = [...editedAd.adJobs];
         
-        // Handle checkbox changes
         if (e === true || e === false) {
             newJobs[index] = {
                 ...newJobs[index],
                 isExperienceRequired: e
             };
         } else {
-            // Handle regular input changes
             const { name, value, type, checked } = e.target;
             newJobs[index] = {
                 ...newJobs[index],
@@ -325,7 +319,6 @@ const AdDetail = () => {
             };
         }
 
-        // Calculate totalJobWage for all jobs
         newJobs.forEach((job, i) => {
             const wage = parseFloat(job.wage) || 0;
             const vacancy = parseInt(job.vacancy) || 0;
@@ -370,7 +363,6 @@ const AdDetail = () => {
 
             const newRequest = await response.json();
 
-            // Update the ad state to include the new request
             setAd(prev => ({
                 ...prev,
                 adJobs: prev.adJobs.map(job => {
@@ -400,7 +392,6 @@ const AdDetail = () => {
 
     const handleCancelRequest = async (jobId) => {
         try {
-            // Find the job request ID for the current user and job
             const jobRequest = ad.adJobs.find(job => job.id === jobId)?.jobRequests.find(req => req.clientId === user.id);
             if (!jobRequest) {
                 throw new Error('Job request not found');
@@ -414,7 +405,6 @@ const AdDetail = () => {
                 throw new Error('Failed to cancel request');
             }
 
-            // Update the ad state to reflect the cancellation
             setAd(prev => ({
                 ...prev,
                 adJobs: prev.adJobs.map(job => {
@@ -476,11 +466,9 @@ const AdDetail = () => {
                 <Card>
                     <CardContent className="p-6">
                         <div className="space-y-6">
-                            {/* Header */}
                             <div className="flex flex-wrap justify-between items-start gap-4">
                                 {isEditing ? (
                                     <div className="w-full space-y-8">
-                                        {/* Ad Information */}
                                         <div className="w-full bg-white p-6 rounded-lg shadow-md">
                                             <h2 className="text-xl font-semibold mb-4">Зарын мэдээлэл</h2>
                                             <div className="space-y-4">
@@ -527,7 +515,7 @@ const AdDetail = () => {
                                                                 setEditedAd({
                                                                     ...editedAd,
                                                                     categoryId: value,
-                                                                    subcategoryId: '' // Reset subcategory when category changes
+                                                                    subcategoryId: ''
                                                                 });
                                                             }}
                                                         >
@@ -603,7 +591,6 @@ const AdDetail = () => {
                                             </div>
                                         </div>
 
-                                        {/* Jobs Section */}
                                         <div className="w-full bg-white p-6 rounded-lg shadow-md">
                                             <div className="flex justify-between items-center mb-4">
                                                 <h2 className="text-xl font-semibold">Ажлын байр</h2>
@@ -787,10 +774,8 @@ const AdDetail = () => {
 
                             
 
-                            {/* Client Info and Comments - Only show when not editing */}
                             {!isEditing && (
                                 <>
-                                    {/* Categories */}
                                     <div>
                                         <h2 className="text-lg font-semibold mb-3">Ангилалууд</h2>
                                         <div className="flex flex-wrap gap-2">
@@ -806,7 +791,6 @@ const AdDetail = () => {
                                         </div>
                                     </div>
 
-                                    {/* Jobs */}
                                     <div>
                                         <h2 className="text-lg font-semibold mb-3">Ажлын байр</h2>
                                         <div className="space-y-4">
@@ -899,7 +883,6 @@ const AdDetail = () => {
                                             ))}
                                         </div>
                                     </div>
-                                    {/* Client Info */}
                                     <div>
                                         <h2 className="text-lg font-semibold mb-3">Зар оруулсан</h2>
                                         <Card>
@@ -940,11 +923,9 @@ const AdDetail = () => {
                                         </Card>
                                     </div>
 
-                                    {/* Comments Section */}
                                     <div>
                                         <h2 className="text-lg font-semibold mb-3">Сэтгэгдлүүд</h2>
                                         
-                                        {/* Comment Form */}
                                         <form onSubmit={handleCommentSubmit} className="mb-6 relative">
                                             <Textarea
                                                 placeholder="Сэтгэгдэл бичих..."

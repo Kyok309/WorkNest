@@ -19,7 +19,6 @@ export default function LandingPage() {
   return (
     <div className="w-full min-h-screen bg-gray-50">
 
-      {/* Hero Section */}
       <div className="bg-[url(/background.png)] bg-cover py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="lg:flex lg:flex-col lg:gap-8">
@@ -78,7 +77,6 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Features */}
       <div className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -126,7 +124,6 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Categories */}
       <div className="bg-blue-500 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl text-white font-extrabold text-center">
@@ -147,7 +144,6 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* How it works */}
       <div className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-extrabold text-gray-900 text-center">

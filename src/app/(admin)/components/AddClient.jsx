@@ -95,7 +95,7 @@ const AddClient = ({ onClientAdded }) => {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="flex gap-2 bg-green-500 text-white">
+                <Button className="bg-green-500 text-white hover:bg-green-600 hover:text-white">
                     <Plus/>
                     Үйлчлүүлэгч нэмэх
                 </Button>

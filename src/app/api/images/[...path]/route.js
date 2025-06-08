@@ -9,7 +9,6 @@ export async function GET(request, { params }) {
 
         const imageBuffer = await readFile(fullPath);
         
-        // Determine content type based on file extension
         const ext = path.extname(fullPath).toLowerCase();
         const contentType = {
             '.jpg': 'image/jpeg',

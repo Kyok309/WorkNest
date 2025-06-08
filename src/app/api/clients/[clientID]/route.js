@@ -45,7 +45,6 @@ export async function PUT(request, { params }) {
         const formData = await request.formData();
         const data = Object.fromEntries(formData);
         
-        // Handle profile image upload
         const profileImage = formData.get('profileImage');
         let imagePath = null;
         
@@ -54,12 +53,10 @@ export async function PUT(request, { params }) {
             const fileName = `${clientID}-${Date.now()}.${profileImage.name.split('.').pop()}`;
             const fullPath = path.join(storagePath, fileName);
             
-            // Ensure directory exists
             if (!fs.existsSync(storagePath)) {
                 fs.mkdirSync(storagePath, { recursive: true });
             }
             
-            // Save the file
             const bytes = await profileImage.arrayBuffer();
             const buffer = Buffer.from(bytes);
             fs.writeFileSync(fullPath, buffer);
@@ -67,7 +64,6 @@ export async function PUT(request, { params }) {
             imagePath = `/api/images/profile/${fileName}`;
         }
 
-        // Update user data in the database
         const updatedClient = await prisma.client.update({
             where: {
                 id: clientID

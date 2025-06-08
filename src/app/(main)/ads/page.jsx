@@ -34,7 +34,6 @@ export default function Ads() {
         const data = await response.json();
         setAds(data);
         
-        // Calculate the maximum wage and round up to the nearest million
         if (data.length > 0) {
           const maxWage = Math.max(...data.map(ad => ad.totalWage));
           const roundedMaxWage = Math.ceil(maxWage / 1000000) * 1000000;
@@ -143,7 +142,6 @@ export default function Ads() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Filters */}
         <div className="md:col-span-1 space-y-4">
           <Card>
             <CardContent className="p-4 space-y-4">
@@ -208,7 +206,6 @@ export default function Ads() {
           </Card>
         </div>
         
-        {/* Ads List */}
         <div className="md:col-span-3">
           <div className="flex justify-between items-center mb-4">
             <div className="text-xl font-semibold text-gray-700">

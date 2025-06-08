@@ -5,7 +5,6 @@ export async function DELETE(request, { params }) {
     try {
         const { id, categoryId } = params;
 
-        // Delete the category
         await prisma.adCategory.deleteMany({
             where: {
                 AND: [

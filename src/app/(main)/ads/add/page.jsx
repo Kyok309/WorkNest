@@ -49,7 +49,6 @@ const AddAd = () => {
             router.push("/ads");
             return;
         }
-        // Initialize form data with user ID after confirming user exists
         setFormData(prev => ({
             ...prev,
             clientId: user.id
@@ -116,27 +115,23 @@ const AddAd = () => {
     const handleJobChange = (index, e) => {
         const newJobs = [...jobs];
         
-        // Handle checkbox changes
         if (e === true || e === false) {
             newJobs[index] = {
                 ...newJobs[index],
                 isExperienceRequired: e
             };
         } else {
-            // Handle regular input changes
             const { name, value, type, checked } = e.target;
             newJobs[index] = {
                 ...newJobs[index],
                 [name]: type === 'checkbox' ? checked : value
             };
 
-            // Always recalculate totalAmount for wage and vacancy changes
             const wage = name === 'wage' ? parseFloat(value) || 0 : parseFloat(newJobs[index].wage) || 0;
             const vacancy = name === 'vacancy' ? parseInt(value) || 0 : parseInt(newJobs[index].vacancy) || 0;
             
             newJobs[index].totalAmount = wage * vacancy;
             
-            // Update form's totalWage based on all jobs
             const totalWage = newJobs.reduce((sum, job) => {
                 return sum + (job.totalAmount || 0);
             }, 0);
@@ -172,7 +167,7 @@ const AddAd = () => {
         setFormData(prev => ({
             ...prev,
             categoryId: value,
-            subcategoryId: '', // Reset subcategory when category changes
+            subcategoryId: '',
         }));
     };
 
@@ -199,7 +194,6 @@ const AddAd = () => {
 
         if (!selectedSubcategory) return;
 
-        // Check if subcategory is already selected
         if (selectedSubcategories.some(sub => sub.id === formData.subcategoryId)) {
             toast({
                 title: 'Алдаа',
@@ -212,7 +206,7 @@ const AddAd = () => {
         setSelectedSubcategories(prev => [...prev, selectedSubcategory]);
         setFormData(prev => ({
             ...prev,
-            subcategoryId: '', // Reset selection after adding
+            subcategoryId: '',
         }));
     };
 
@@ -227,7 +221,6 @@ const AddAd = () => {
         setIsLoading(true);
 
         try {
-            // Ensure all jobs have totalAmount calculated before submission
             const processedJobs = jobs.map(job => {
                 const wage = parseFloat(job.wage) || 0;
                 const vacancy = parseInt(job.vacancy) || 0;
@@ -240,7 +233,6 @@ const AddAd = () => {
                 };
             });
 
-            // Calculate total wage from all jobs
             const totalWage = processedJobs.reduce((sum, job) => sum + job.totalAmount, 0);
 
             const payload = {
@@ -283,7 +275,6 @@ const AddAd = () => {
     return (
         <div className="w-full flex justify-center items-center">
             <div className="w-2/3 p-6">
-                {/* Stepper */}
                 <div className="flex items-center mb-8 justify-center">
                   <div className="flex items-center gap-2">
                     <span className={`${step === 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'} w-8 h-8 flex items-center justify-center rounded-full`}>1</span>
@@ -296,7 +287,6 @@ const AddAd = () => {
                   </div>
                 </div>
                 <form onSubmit={handleSubmit} className="w-full flex flex-col items-center justify-center space-y-8">
-                    {/* Step 1: Ad Information */}
                     {step === 1 && (
                         <div className="w-full flex gap-12">
                             <div className="w-full bg-white p-6 rounded-lg shadow-md">
@@ -417,7 +407,6 @@ const AddAd = () => {
                         </div>
                     )}
 
-                    {/* Step 2: Jobs Section */}
                     {step === 2 && (
                         <div className="w-full flex gap-12">
                             <div className="w-full bg-white p-6 rounded-lg shadow-md">

@@ -3,6 +3,18 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AddEmployee from '@/app/(admin)/components/AddEmployee';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 const EmployeesRegistration = () => {
     const [employees, setEmployees] = useState([]);
@@ -12,9 +24,9 @@ const EmployeesRegistration = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortOrder, setSortOrder] = useState('desc');
     const [employeeRoles, setEmployeeRoles] = useState([]);
+    const [employeeToDelete, setEmployeeToDelete] = useState(null);
     const router = useRouter();
 
-    // Fetch employees
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
@@ -31,11 +43,10 @@ const EmployeesRegistration = () => {
         fetchEmployees();
     }, []);
 
-    // Fetch employee roles
     useEffect(() => {
         const fetchRoles = async () => {
             try {
-                const response = await fetch('/api/employee-roles');
+                const response = await fetch('/api/employeerole');
                 const data = await response.json();
                 setEmployeeRoles(data);
             } catch (error) {
@@ -45,11 +56,9 @@ const EmployeesRegistration = () => {
         fetchRoles();
     }, []);
 
-    // Handle search and sort
     useEffect(() => {
         let result = [...employees];
         
-        // Apply search filter
         if (searchTerm) {
             result = result.filter(employee => 
                 employee.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -60,7 +69,6 @@ const EmployeesRegistration = () => {
         setFilteredEmployees(result);
     }, [searchTerm, sortOrder, employees]);
 
-    // Handle employee added
     const handleEmployeeAdded = (newEmployee) => {
         setEmployees(prevEmployees => {
             const updatedEmployees = [...prevEmployees, newEmployee];
@@ -107,6 +115,27 @@ const EmployeesRegistration = () => {
         }
     };
 
+    const handleDelete = async (employeeId) => {
+        try {
+            const response = await fetch(`/api/employees/${employeeId}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                setEmployees(employees.filter(emp => emp.id !== employeeId));
+                setFilteredEmployees(filteredEmployees.filter(emp => emp.id !== employeeId));
+                router.refresh();
+            } else {
+                const error = await response.json();
+                console.error('Error deleting employee:', error);
+                alert('Ажилтны мэдээллийг устгахад алдаа гарлаа. Дахин оролдоно уу.');
+            }
+        } catch (error) {
+            console.error('Error deleting employee:', error);
+            alert('Ажилтны мэдээллийг устгахад алдаа гарлаа. Дахин оролдоно уу.');
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="w-full flex justify-center items-center min-h-screen">
@@ -116,10 +145,9 @@ const EmployeesRegistration = () => {
     }
 
     return (
-        <div className="p-6">
+        <div className="min-h-screen h-fit p-6">
             <h1 className="text-2xl font-bold mb-6">Ажилтны бүртгэл</h1>
             
-            {/* Search and Sort Controls */}
             <div className="mb-4 flex items-center space-x-4">
                 <div className="flex-1">
                     <input
@@ -259,12 +287,40 @@ const EmployeesRegistration = () => {
                                             </button>
                                         </div>
                                     ) : (
-                                        <button
-                                            onClick={() => handleEdit(employee)}
-                                            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                                        >
-                                            Засах
-                                        </button>
+                                        <div className="space-x-2">
+                                            <button
+                                                onClick={() => handleEdit(employee)}
+                                                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                                            >
+                                                Засах
+                                            </button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <button
+                                                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                                                    >
+                                                        Устгах
+                                                    </button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Та итгэлтэй байна уу?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Энэ үйлдлийг буцаах боломжгүй. Энэ нь ажилтны бүх мэдээллийг системээс устгах болно.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Цуцлах</AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            onClick={() => handleDelete(employee.id)}
+                                                            className="bg-red-500 hover:bg-red-600"
+                                                        >
+                                                            Устгах
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </div>
                                     )}
                                 </td>
                             </tr>

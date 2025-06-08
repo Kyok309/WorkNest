@@ -35,13 +35,10 @@ export async function POST(request) {
   try {
     const data = await request.json();
     
-    // Generate client ID
     const clientId = `cli_${nanoid(21)}`;
     
-    // Hash the password
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    // Convert phone number to integer
     const phoneNum = parseInt(data.phoneNum.replace(/\D/g, ''), 10);
     if (isNaN(phoneNum)) {
       return NextResponse.json(
@@ -50,7 +47,6 @@ export async function POST(request) {
       );
     }
     
-    // Create the client with the generated ID and hashed password
     const client = await prisma.client.create({
       data: {
         id: clientId,
@@ -72,13 +68,11 @@ export async function POST(request) {
       }
     });
 
-    // Remove password from the response
     const { password, ...clientWithoutPassword } = client;
     
     return NextResponse.json(clientWithoutPassword, { status: 201 });
   } catch (error) {
     console.error('Error creating client:', error);
-    // Check for unique constraint violation
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Email already exists' },

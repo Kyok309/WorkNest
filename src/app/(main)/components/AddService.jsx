@@ -101,7 +101,7 @@ const AddService = ({client, setClient}) => {
         setSelectedCategory(categoryId);
         setFormData(prev => ({
             ...prev,
-            subcategoryId: "" // Reset subcategory when category changes
+            subcategoryId: ""
         }));
     };
 

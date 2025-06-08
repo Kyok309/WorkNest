@@ -132,7 +132,6 @@ const Services = () => {
             
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {/* Filters */}
                 <div className="md:col-span-1 space-y-4">
                     <Card>
                         <CardContent className="p-4 space-y-4">
@@ -198,7 +197,6 @@ const Services = () => {
                     </Card>
                 </div>
 
-                {/* Services List */}
                 <div className="md:col-span-3">
                     <div className="flex justify-between items-center mb-4">
                         <div className="text-xl font-semibold text-gray-700">

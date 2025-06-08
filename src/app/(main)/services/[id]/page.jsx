@@ -137,7 +137,6 @@ const ServiceDetail = () => {
                 <Card>
                     <CardContent className="p-6">
                         <div className="space-y-6">
-                            {/* Header */}
                             <div className="flex flex-wrap justify-between items-start gap-4">
                                 <div>
                                     <h1 className="text-2xl font-bold">{service.title}</h1>
@@ -164,7 +163,6 @@ const ServiceDetail = () => {
                                 <img src={`/api/images/${service.imageURL}`} alt={service.title} className="w-full h-full object-cover"></img>
                             )}
 
-                            {/* Categories */}
                             <div>
                                 <h2 className="text-lg font-semibold mb-3">Ангилал</h2>
                                 <div className="flex flex-wrap gap-2">
@@ -180,8 +178,6 @@ const ServiceDetail = () => {
                                 </div>
                             </div>
 
-
-                            {/* Client Info */}
                             <div>
                                 <h2 className="text-lg font-semibold mb-3">Үйлчилгээ оруулсан</h2>
                                 <Card>
@@ -222,11 +218,9 @@ const ServiceDetail = () => {
                                 </Card>
                             </div>
 
-                            {/* Comments Section */}
                             <div>
                                 <h2 className="text-lg font-semibold mb-3">Сэтгэгдлүүд</h2>
                                 
-                                {/* Comment Form */}
                                 <form onSubmit={handleCommentSubmit} className="mb-6 relative">
                                     <Textarea
                                         placeholder="Сэтгэгдэл бичих..."

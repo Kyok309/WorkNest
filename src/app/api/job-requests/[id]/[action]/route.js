@@ -13,7 +13,6 @@ export async function PUT(request, { params }) {
             );
         }
 
-        // Create a new state for the request
         const newState = await prisma.requestState.create({
             data: {
                 id: nanoid(21),
@@ -26,8 +25,8 @@ export async function PUT(request, { params }) {
                 requestStateRef: {
                     connect: {
                         id: action === 'approve' 
-                            ? 'cUoFt6mXyJrDqwNBLzA3K' // Approved state ID
-                            : 'cUoFt6mXyJrDqwNBLzA3L' // Rejected state ID
+                            ? 'cUoFt6mXyJrDqwNBLzA3K'
+                            : 'cUoFt6mXyJrDqwNBLzA3L'
                     }
                 }
             },

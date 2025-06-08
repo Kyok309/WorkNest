@@ -185,13 +185,11 @@ const Profile = () => {
 
     const handleServiceUpdate = (updatedService) => {
         if (updatedService?.deleted) {
-            // Service was deleted
             setClient(prev => ({
                 ...prev,
                 services: prev.services.filter(service => service.id !== updatedService.id)
             }));
         } else {
-            // Service was updated
             setClient(prev => ({
                 ...prev,
                 services: prev.services.map(service => 
@@ -221,7 +219,7 @@ const Profile = () => {
     if (!client) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="text-gray-500">Client not found</div>
+                <div className="text-gray-500">Үйлчлүүлэгч олдсонгүй</div>
             </div>
         );
     }
@@ -229,7 +227,6 @@ const Profile = () => {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Profile Card */}
                 <Card className="md:col-span-1 h-fit">
                     <CardHeader>
                         <div className="flex flex-col items-center space-y-4">
@@ -270,15 +267,18 @@ const Profile = () => {
                             <div className="text-center">
                                 <h2 className="text-2xl font-bold">{client.firstname} {client.lastname}</h2>
                                 <p className="text-gray-500">{client.email}</p>
-                                <div className="flex items-center justify-center mt-2">
-                                    <Star className="w-5 h-5 text-yellow-400" />
-                                    <span className="ml-1">
-                                        {typeof client.avgRating === 'number' 
-                                            ? client.avgRating.toFixed(1)
-                                            : typeof client.avgRating === 'string'
-                                                ? parseFloat(client.avgRating).toFixed(1)
-                                                : '0.0'}
-                                    </span>
+                                <div className="flex items-center justify-center gap-2 mt-2">
+                                    Дундаж үнэлгээ
+                                    <div className="flex items-center justify-center">
+                                        <Star className="w-5 h-5 text-yellow-400" />
+                                        <span className="ml-1">
+                                            {typeof client.avgRating === 'number' 
+                                                ? client.avgRating.toFixed(1)
+                                                : typeof client.avgRating === 'string'
+                                                    ? parseFloat(client.avgRating).toFixed(1)
+                                                    : '0.0'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             )}
@@ -386,8 +386,13 @@ const Profile = () => {
                                         <p className="text-gray-600">Боловсрол: {client.education}</p>
                                         <p className="text-gray-600">Туршлага: {client.pastExperience}</p>
                                         <p className="text-gray-600">Утас: {client.phoneNum}</p>
-                                        <p className="text-gray-600">Хаяг: {client.homeAddress}</p>
-                                        <p className="text-gray-600">Төрсөн огноо: {new Date(client.birthDate).getFullYear()}</p>
+                                        <p className="text-gray-600">Имэйл: {client.email}</p>
+                                        {user?.id === client.id && (
+                                            <>
+                                                <p className="text-gray-600">Хаяг: {client.homeAddress}</p>
+                                                <p className="text-gray-600">Төрсөн огноо: {new Date(client.birthDate).getFullYear()}</p>
+                                            </>
+                                        )}
                                         <p className="text-gray-600">Хүйс: {client.gender}</p>
                                     </>
                                 )}
@@ -414,7 +419,6 @@ const Profile = () => {
                     </CardContent>
                 </Card>
 
-                {/* Main Content */}
                 <div className="md:col-span-2">
                     <Tabs defaultValue="services" className="w-full">
                         <TabsList className="grid w-full grid-cols-3">
@@ -612,12 +616,14 @@ const Profile = () => {
                                                             </div>
 
                                                             <div className="flex flex-wrap items-center justify-between mt-4">
-                                                                <Button variant="outline" asChild>
-                                                                    <Link className="flex items-center gap-2" href={`/ads/${ad.id}/requests`}>
-                                                                        Хүсэлтүүд
-                                                                        <Mail className="w-4 h-4" />
-                                                                    </Link>
-                                                                </Button>
+                                                                {user?.id === client.id && (
+                                                                    <Button variant="outline" asChild>
+                                                                        <Link className="flex items-center gap-2" href={`/ads/${ad.id}/requests`}>
+                                                                            Хүсэлтүүд
+                                                                            <Mail className="w-4 h-4" />
+                                                                        </Link>
+                                                                    </Button>
+                                                                )}
                                                                 <Link href={`/ads/${ad.id}`}>
                                                                     <div className="flex items-center gap-2 hover:text-indigo-500">
                                                                         Дэлгэрэнгүй
